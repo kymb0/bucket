@@ -90,3 +90,67 @@ foreach ($index in 0..($residentEvilUsers.Length - 1)) {
 }
 
 Write-Output "Users and groups created successfully with logical names and job titles."
+
+# List of users with corresponding descriptions
+$userDescriptions = @(
+    @{
+        UserName = "albert.wesker";
+        Description = "A former STARS captain, Wesker is now the Director of Operations at Umbrella Corp, known for his ruthless pursuit of power."
+    },
+    @{
+        UserName = "william.birkin";
+        Description = "Lead Researcher overseeing top-secret viral research, known for his work on the G-Virus. Obsessed with perfecting his creation."
+    },
+    @{
+        UserName = "alexia.ashford";
+        Description = "The cunning Head of Research, Alexia seeks to carry on the Ashford legacy with her unique scientific prowess."
+    },
+    @{
+        UserName = "james.marcus";
+        Description = "A pioneer in bio-organic weapons research, James Marcus is a Senior Researcher known for his unforgiving approach."
+    },
+    @{
+        UserName = "oswell.spencer";
+        Description = "The mysterious Chairman of Umbrella's Board, Spencer has been the mastermind behind the corporation's global reach."
+    },
+    @{
+        UserName = "annette.birkin";
+        Description = "A dedicated Research Scientist and wife of William Birkin, she provides critical support to his ambitious research projects."
+    },
+    @{
+        UserName = "alexander.ashford";
+        Description = "Assistant Head of Research and brother of Alexia, Alexander is determined to prove his worth in the Ashford family legacy."
+    },
+    @{
+        UserName = "enrico.marini";
+        Description = "A loyal operative and Deputy Director of Operations, Marini ensures that Umbrella's field operations run smoothly."
+    },
+    @{
+        UserName = "sergei.vladimir";
+        Description = "Chief Security Officer Sergei Vladimir is a strict enforcer of security protocols, ensuring no unauthorized access."
+    },
+    @{
+        UserName = "edward.ashford";
+        Description = "The Ashford family’s expert in weapon development, Edward spearheads the weapons division with innovation and precision."
+    }
+)
+
+# Loop through each user and update their description in AD
+foreach ($user in $userDescriptions) {
+    $userName = $user["UserName"]
+    $description = $user["Description"]
+
+    # Get the user object from AD
+    $adUser = Get-ADUser -Filter { SamAccountName -eq $userName }
+
+    # Update the description if the user is found
+    if ($adUser) {
+        Set-ADUser -Identity $adUser -Description $description
+        Write-Output "Description updated for user '$userName'."
+    } else {
+        Write-Output "User '$userName' not found."
+    }
+}
+
+Write-Output "Descriptions have been updated."
+
