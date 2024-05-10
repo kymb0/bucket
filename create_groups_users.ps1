@@ -132,7 +132,28 @@ $userDescriptions = @(
     @{
         UserName = "edward.ashford";
         Description = "The Ashford family’s expert in weapon development, Edward spearheads the weapons division with innovation and precision."
+    },
+        @{
+        UserName = "jessica.trevor";
+        Description = "A financial analyst with a keen eye for detail, Jessica Trevor ensures Umbrella Corp's accounts are always balanced."
+    },
+    @{
+        UserName = "lisa.trevor";
+        Description = "A meticulous accountant, Lisa Trevor provides unwavering support for the financial operations of the corporation."
+    },
+    @{
+        UserName = "daniel.fabron";
+        Description = "Strategic Planner Daniel Fabron coordinates and optimizes Umbrella's corporate strategy to expand its global reach."
+    },
+    @{
+        UserName = "patrick.evers";
+        Description = "Patrick Evers, an innovative weapons engineer, drives the company's technological advances in the Weapons Division."
+    },
+    @{
+        UserName = "rachel.foley";
+        Description = "Public Relations Manager Rachel Foley effectively manages Umbrella Corp's public image and media communications."
     }
+)
 )
 
 # Loop through each user and update their description in AD
