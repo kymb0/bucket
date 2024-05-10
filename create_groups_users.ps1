@@ -2,7 +2,8 @@
 Import-Module ActiveDirectory
 
 # Define the base Organizational Unit (OU)
-$baseOU = "OU=UmbrellaCorp,DC=yourdomain,DC=local"
+$baseOU = "OU=Umbrella Staff,DC=umbrellacorp,DC=local"
+$groupOU = "OU=Security Groups,DC=umbrellacorp,DC=local"
 
 # Define AD groups and corresponding departments
 $adGroups = @(
@@ -19,7 +20,7 @@ $adGroups = @(
 
 # Create the AD groups
 foreach ($group in $adGroups) {
-    New-ADGroup -Name $group.Name -GroupScope Global -Path $baseOU -Description "$($group.Department) department group with $($group.Name) clearance"
+    New-ADGroup -Name $group.Name -GroupScope Global -Path $groupOU -Description "$($group.Department) department group with $($group.Name) clearance"
 }
 
 # Define logical users (with relevant job titles)
@@ -55,7 +56,7 @@ foreach ($index in 0..($residentEvilUsers.Length - 1)) {
 
     # Create the username and email
     $userName = $firstName.ToLower() + "." + $lastName.ToLower()
-    $email = $userName + "@yourdomain.local"
+    $email = $userName + "@umbrellacorp.local"
 
     # Define the distinguished name for the new user
     $distinguishedName = "CN=$firstName $lastName,$baseOU"
@@ -66,7 +67,7 @@ foreach ($index in 0..($residentEvilUsers.Length - 1)) {
         -GivenName $firstName `
         -Surname $lastName `
         -SamAccountName $userName `
-        -UserPrincipalName $userName"@yourdomain.local" `
+        -UserPrincipalName $userName"@umbrellacorp.local" `
         -EmailAddress $email `
         -Department $department `
         -Title $jobTitle `
