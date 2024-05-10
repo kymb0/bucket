@@ -95,65 +95,64 @@ Write-Output "Users and groups created successfully with logical names and job t
 $userDescriptions = @(
     @{
         UserName = "albert.wesker";
-        Description = "A former STARS captain, Wesker is now the Director of Operations at Umbrella Corp, known for his ruthless pursuit of power."
+        Description = "Director of Operations overseeing strategic and tactical decision-making, ensuring operational efficiency and security."
     },
     @{
         UserName = "william.birkin";
-        Description = "Lead Researcher overseeing top-secret viral research, known for his work on the G-Virus. Obsessed with perfecting his creation."
+        Description = "Lead Researcher responsible for coordinating research projects and leading the team in developing innovative viral research."
     },
     @{
         UserName = "alexia.ashford";
-        Description = "The cunning Head of Research, Alexia seeks to carry on the Ashford legacy with her unique scientific prowess."
+        Description = "Head of Research overseeing research initiatives and managing the team to drive progress toward key scientific objectives."
     },
     @{
         UserName = "james.marcus";
-        Description = "A pioneer in bio-organic weapons research, James Marcus is a Senior Researcher known for his unforgiving approach."
+        Description = "Senior Researcher focused on developing advanced bio-organic weapons technology and leading high-impact scientific projects."
     },
     @{
         UserName = "oswell.spencer";
-        Description = "The mysterious Chairman of Umbrella's Board, Spencer has been the mastermind behind the corporation's global reach."
+        Description = "Chairman of the Board, responsible for strategic direction and governance, ensuring organizational objectives are met."
     },
     @{
         UserName = "annette.birkin";
-        Description = "A dedicated Research Scientist and wife of William Birkin, she provides critical support to his ambitious research projects."
+        Description = "Research Scientist specializing in viral research and supporting her team in achieving project milestones effectively."
     },
     @{
         UserName = "alexander.ashford";
-        Description = "Assistant Head of Research and brother of Alexia, Alexander is determined to prove his worth in the Ashford family legacy."
+        Description = "Assistant Head of Research, responsible for managing key research initiatives and supporting the head of research."
     },
     @{
         UserName = "enrico.marini";
-        Description = "A loyal operative and Deputy Director of Operations, Marini ensures that Umbrella's field operations run smoothly."
+        Description = "Deputy Director of Operations focused on managing field operations and ensuring compliance with corporate security policies."
     },
     @{
         UserName = "sergei.vladimir";
-        Description = "Chief Security Officer Sergei Vladimir is a strict enforcer of security protocols, ensuring no unauthorized access."
+        Description = "Chief Security Officer managing corporate security protocols, safeguarding sensitive information, and preventing breaches."
     },
     @{
         UserName = "edward.ashford";
-        Description = "The Ashford family’s expert in weapon development, Edward spearheads the weapons division with innovation and precision."
+        Description = "Chief Weapons Developer leading the development of innovative weapons technology and managing the technical team."
     },
-        @{
+    @{
         UserName = "jessica.trevor";
-        Description = "A financial analyst with a keen eye for detail, Jessica Trevor ensures Umbrella Corp's accounts are always balanced."
+        Description = "Financial Analyst responsible for budget analysis, cost control, and ensuring accurate financial reporting."
     },
     @{
         UserName = "lisa.trevor";
-        Description = "A meticulous accountant, Lisa Trevor provides unwavering support for the financial operations of the corporation."
+        Description = "Accountant managing financial transactions, preparing budgets, and supporting the finance team in data accuracy."
     },
     @{
         UserName = "daniel.fabron";
-        Description = "Strategic Planner Daniel Fabron coordinates and optimizes Umbrella's corporate strategy to expand its global reach."
+        Description = "Strategic Planner coordinating strategic initiatives and optimizing corporate strategy to enhance global market reach."
     },
     @{
         UserName = "patrick.evers";
-        Description = "Patrick Evers, an innovative weapons engineer, drives the company's technological advances in the Weapons Division."
+        Description = "Weapons Development Engineer overseeing technical advancements in weapons technology and driving product innovation."
     },
     @{
         UserName = "rachel.foley";
-        Description = "Public Relations Manager Rachel Foley effectively manages Umbrella Corp's public image and media communications."
+        Description = "Public Relations Manager responsible for maintaining corporate image and managing media communications effectively."
     }
-)
 )
 
 # Loop through each user and update their description in AD
