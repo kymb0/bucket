@@ -1,9 +1,9 @@
 -- Create the database
-CREATE DATABASE 5G_enzyme_experimental;
+CREATE DATABASE _5G_enzyme_experimental;
 GO
 
 -- Use the new database
-USE 5G_enzyme_experimental;
+USE _5G_enzyme_experimental;
 GO
 
 -- Create a table for experimental enzyme data
