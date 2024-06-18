@@ -23,11 +23,10 @@ GRANT SELECT ON DATABASE::[_5G_enzyme_experimental] TO [public_db_reader];
 GRANT SELECT ON DATABASE::[_5G_enzyme_experimental] TO [private_db_reader];
 CREATE LOGIN [umbrellacorp\gmsa_db01$] FROM WINDOWS;
 CREATE USER [gmsa_db01] FOR LOGIN [umbrellacorp\gmsa_db01$];
-GRANT SELECT ON DATABASE::[public_research] TO [gmsa_db01];
 GRANT SELECT ON DATABASE::[_5G_enzyme_experimental] TO [gmsa_db01];
-CREATE LOGIN [gmsa_db02] FROM WINDOWS;
-CREATE USER [gmsa_db02] FOR LOGIN [gmsa_db02];
-GRANT SELECT ON DATABASE::[public_research] TO [gmsa_db02];
+CREATE LOGIN [umbrellacorp\gmsa_db02$] FROM WINDOWS;
+CREATE USER [gmsa_db02] FOR LOGIN [umbrellacorp\gmsa_db02$];
+GRANT SELECT ON DATABASE::[_5G_enzyme_experimental] TO [gmsa_db02];
 ```
 
 ### Linked Server Configuration
