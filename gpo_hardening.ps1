@@ -1,20 +1,23 @@
-# Ensure the Group Policy module is installed
-Install-WindowsFeature -Name GPMC
+# Create default AppLocker policy
+$defaultExePolicy = Get-AppLockerFileInformation -Directory "C:\Windows\System32" | 
+    New-AppLockerPolicy -RuleType Path -User Everyone -Xml
 
-# Create the default AppLocker policy
+# Save the policy to a file
 $xmlPath = "C:\Temp\DefaultAppLockerPolicy.xml"
-New-AppLockerPolicy -Default -Xml $xmlPath
+$defaultExePolicy.Save($xmlPath)
 
-# Add custom rules to block LOLBins (Example: mshta.exe)
+# Load the XML policy
 [xml]$appLockerPolicy = Get-Content $xmlPath
 $exeRuleCollection = $appLockerPolicy.SelectSingleNode("//RuleCollection[@Type='Exe']")
 
+# Define LOLBins to block
 $lolbins = @(
     "C:\Windows\System32\mshta.exe",
     "C:\Windows\System32\certutil.exe",
     "C:\Windows\System32\regsvr32.exe"
 )
 
+# Add rules to block LOLBins
 foreach ($lolbin in $lolbins) {
     $newRule = $exeRuleCollection.OwnerDocument.CreateElement("FilePathRule")
     $newRule.SetAttribute("Id", [guid]::NewGuid().ToString())
@@ -32,13 +35,14 @@ foreach ($lolbin in $lolbins) {
     $exeRuleCollection.AppendChild($newRule)
 }
 
+# Save the modified policy
 $appLockerPolicy.Save($xmlPath)
 
 # Import the Group Policy module
 Import-Module GroupPolicy
 
 # Create a new GPO
-$gpoName = "Secure Environment Policy"
+$gpoName = "Default AppLocker Policy with LOLBins"
 New-GPO -Name $gpoName
 
 # Get the GPO object
