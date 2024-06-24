@@ -1,6 +1,5 @@
 # Create default AppLocker policy
-$defaultExePolicy = Get-AppLockerFileInformation -Directory "C:\Windows\System32" | 
-    New-AppLockerPolicy -RuleType Path -User Everyone -Xml
+$defaultExePolicy = Get-AppLockerFileInformation -Directory "C:\Windows\System32" |  New-AppLockerPolicy -RuleType Path -User Everyone -Xml
 
 # Save the policy to a file
 $xmlPath = "C:\Temp\DefaultAppLockerPolicy.xml"
