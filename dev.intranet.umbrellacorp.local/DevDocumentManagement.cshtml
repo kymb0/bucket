@@ -1,0 +1,27 @@
+
+@{
+    ViewData["Title"] = "Document Management";
+}
+
+<div class="container">
+    <h1>Document Management</h1>
+    <p>Enter the path of the document you wish to retrieve:</p>
+    <form method="post" action="@Url.Action("RetrieveDocument", "Home")">
+        <input type="text" name="filePath" class="form-control" placeholder="Enter file path" required />
+        <button type="submit" class="btn btn-primary">Retrieve Document</button>
+    </form>
+    @if (ViewBag.FileContent != null)
+    {
+        <div class="alert alert-success mt-3">
+            <h4>Document Content:</h4>
+            <pre>@ViewBag.FileContent</pre>
+        </div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger mt-3">
+            <h4>Error:</h4>
+            <pre>@ViewBag.Error</pre>
+        </div>
+    }
+}
