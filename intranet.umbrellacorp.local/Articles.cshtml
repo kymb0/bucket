@@ -1,0 +1,33 @@
+
+@model IEnumerable<umbrella_intranet.Models.Article>
+@{
+    ViewData["Title"] = "Articles";
+}
+
+<h1>Articles</h1>
+<input type="text" placeholder="Search..." onkeyup="searchFunction()" class="form-control">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Author</th>
+            <th>Title</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var article in Model)
+        {
+            <tr>
+                <td>@article.AuthorName</td>
+                <td>@article.Title</td>
+                <td>@article.PublicationDate.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function searchFunction() {
+        // Implement search functionality here
+    }
+</script>
