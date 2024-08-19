@@ -1,33 +1,47 @@
-# Block all FTP (port 21) traffic for non-admins
-New-NetFirewallRule -DisplayName "Block FTP Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 21 -User "Users"
+# Import necessary modules
+Import-Module GroupPolicy
 
-# Block all SSH (port 22) traffic for non-admins
-New-NetFirewallRule -DisplayName "Block SSH Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 22 -User "Users"
+# Define GPO name and OU
+$GPOName = "Firewall Rules for All Users"
+$OUPath = "OU=Users,DC=YourDomain,DC=com"
 
-# Block Telnet (port 23) traffic for non-admins
-New-NetFirewallRule -DisplayName "Block Telnet Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 23 -User "Users"
+# Create a new GPO
+New-GPO -Name $GPOName -Comment "Manage firewall settings for all users"
+# Link the GPO to the designated OU
+New-GPLink -Name $GPOName -Target $OUPath
 
-# Block SMTP (port 25) traffic for non-admins
-New-NetFirewallRule -DisplayName "Block SMTP Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 25 -User "Users"
+# Path to configure Firewall Rules
+$GPOPath = "Computer Configuration\Policies\Windows Settings\Security Settings\Windows Firewall with Advanced Security"
 
-# Block POP3 (port 110) traffic for non-admins
-New-NetFirewallRule -DisplayName "Block POP3 Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 110 -User "Users"
+# Define firewall rules as an array of custom objects
+$firewallRules = @(
+    @{Name="Block FTP Traffic"; Protocol="TCP"; Port="21"; Direction="Outbound"; Action="Block"},
+    @{Name="Block SSH Traffic"; Protocol="TCP"; Port="22"; Direction="Outbound"; Action="Block"},
+    @{Name="Allow DNS to Specific Server"; Protocol="UDP"; Port="53"; Address="192.168.66.1"; Direction="Outbound"; Action="Allow"},
+    @{Name="Block Other DNS"; Protocol="UDP"; Port="53"; Direction="Outbound"; Action="Block"},
+    @{Name="Allow HTTP to Domain"; Protocol="TCP"; Port="80"; Profile="Domain"; Direction="Outbound"; Action="Allow"},
+    @{Name="Allow HTTPS to Domain"; Protocol="TCP"; Port="443"; Profile="Domain"; Direction="Outbound"; Action="Allow"},
+    @{Name="Block HTTP to Non-Domain"; Protocol="TCP"; Port="80"; Profile="Private,Public"; Direction="Outbound"; Action="Block"},
+    @{Name="Block HTTPS to Non-Domain"; Protocol="TCP"; Port="443"; Profile="Private,Public"; Direction="Outbound"; Action="Block"},
+    @{Name="Allow SMB Internally"; Protocol="TCP"; Port="445"; Address="192.168.66.0/24"; Direction="Outbound"; Action="Allow"},
+    @{Name="Block External SMB"; Protocol="TCP"; Port="445"; Profile="Public,Private"; Direction="Outbound"; Action="Block"},
+    @{Name="Block Telnet"; Protocol="TCP"; Port="23"; Direction="Outbound"; Action="Block"},
+    @{Name="Block TFTP"; Protocol="UDP"; Port="69"; Direction="Outbound"; Action="Block"},
+    @{Name="Block SNMP"; Protocol="UDP"; Port="161"; Direction="Outbound"; Action="Block"},
+    @{Name="Block NFS"; Protocol="TCP"; Port="2049"; Direction="Outbound"; Action="Block"},
+    @{Name="Block ICMP"; Protocol="ICMPv4"; Direction="Outbound"; Action="Block"}
+    @{Name="Block Outbound RDP Traffic"; Protocol="TCP"; Port="3389"; Direction="Outbound"; Action="Block"}
+)
+)
 
-# Block IMAP (port 143) traffic for non-admins
-New-NetFirewallRule -DisplayName "Block IMAP Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 143 -User "Users"
+# Add each rule to the GPO
+foreach ($rule in $firewallRules) {
+    $cmd = "netsh advfirewall firewall add rule name=`"$($rule.Name)`" dir=$($rule.Direction) action=$($rule.Action) protocol=$($rule.Protocol)"
+    if ($rule.Port) { $cmd += " localport=$($rule.Port)" }
+    if ($rule.Address) { $cmd += " remoteip=$($rule.Address)" }
+    if ($rule.Profile) { $cmd += " profile=$($rule.Profile)" }
+    Invoke-GPUpdate -RandomDelayInMinutes 0 -Cmd $cmd -PolicyStore (Get-GPO -Name $GPOName).Id
+}
 
-# Block SMB (port 445) traffic for non-admins, except internally
-New-NetFirewallRule -DisplayName "Block SMB Traffic (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 445 -RemoteAddress Any -User "Users"
-New-NetFirewallRule -DisplayName "Allow SMB Traffic Internally" -Direction Outbound -Action Allow -Protocol TCP -RemotePort 445 -RemoteAddress 192.168.66.0/24 -User "Users"
-
-# Allow DNS requests only to the specified DNS server (192.168.66.1) for non-admins
-New-NetFirewallRule -DisplayName "Allow DNS to 192.168.66.1 (Non-Admins)" -Direction Outbound -Action Allow -Protocol UDP -RemotePort 53 -RemoteAddress 192.168.66.1 -User "Users"
-New-NetFirewallRule -DisplayName "Block DNS to other servers (Non-Admins)" -Direction Outbound -Action Block -Protocol UDP -RemotePort 53 -RemoteAddress Any -User "Users"
-
-# Allow HTTP and HTTPS traffic to domain networks for non-admins
-New-NetFirewallRule -DisplayName "Allow HTTP to domain (Non-Admins)" -Direction Outbound -Action Allow -Protocol TCP -RemotePort 80 -Profile Domain -User "Users"
-New-NetFirewallRule -DisplayName "Allow HTTPS to domain (Non-Admins)" -Direction Outbound -Action Allow -Protocol TCP -RemotePort 443 -Profile Domain -User "Users"
-
-# Block HTTP and HTTPS traffic to non-domain networks for non-admins
-New-NetFirewallRule -DisplayName "Block HTTP to non-domain (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 80 -Profile Private,Public -User "Users"
-New-NetFirewallRule -DisplayName "Block HTTPS to non-domain (Non-Admins)" -Direction Outbound -Action Block -Protocol TCP -RemotePort 443 -Profile Private,Public -User "Users"
+# Apply and update GPO
+Invoke-GPUpdate -Force
