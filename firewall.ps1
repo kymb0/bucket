@@ -3,7 +3,7 @@ Import-Module GroupPolicy
 
 # Define GPO name and OU
 $GPOName = "Firewall Rules for All Users"
-$OUPath = "OU=Users,DC=YourDomain,DC=com"
+$OUPath = "OU=Users,DC=umbrellacorp,DC=local"
 
 # Create a new GPO
 New-GPO -Name $GPOName -Comment "Manage firewall settings for all users"
