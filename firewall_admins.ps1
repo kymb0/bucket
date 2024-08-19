@@ -19,7 +19,7 @@ $PolicyStoreAdmins = "$Domain\$GpoNameAdmins"
 # Open GPO sessions (ensure domain connectivity and correct permissions)
 $GpoSessionAllUsers = Open-NetGPO -PolicyStore $PolicyStoreAllUsers
 $GpoSessionAdmins = Open-NetGPO -PolicyStore $PolicyStoreAdmins
-$BlockedPortsTCP = @(21, 22, 23, 2049, 3389)  # TCP ports to block
+$BlockedPortsTCP = @(21, 22, 23, 2049)  # TCP ports to block
 $BlockedPortsUDP = @(69, 161)  # UDP ports to block
 
 # Block TCP ports
@@ -35,7 +35,7 @@ foreach ($Port in $BlockedPortsUDP) {
 }
 
 # Allow RDP (TCP/3389) from 10.1.x.x (10.1.0.0/16 subnet) for All Users
-New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow RDP Inbound from 10.1.0.0/16" -Direction Inbound -LocalPort 3389 -Protocol TCP -RemoteAddress "10.1.0.0/16" -Action Allow
+New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName -Direction Inbound -LocalPort 3389 -Protocol TCP -Action Allow
 
 
 # Block ICMP (all ICMPv4)
@@ -70,7 +70,7 @@ foreach ($Port in $BlockedPortsUDP) {
 New-NetFirewallRule -GPOSession $GpoSessionAdmins -DisplayName "Allow ICMPv4 Inbound" -Direction Inbound -Protocol ICMPv4 -Action Allow
 New-NetFirewallRule -GPOSession $GpoSessionAdmins -DisplayName "Allow ICMPv4 Outbound" -Direction Outbound -Protocol ICMPv4 -Action Allow
 # Ensure RDP is allowed from 10.1.x.x (10.1.0.0/16 subnet) for Admins
-New-NetFirewallRule -GPOSession $GpoSessionAdmins -DisplayName "Allow RDP Inbound from 10.1.0.0/16" -Direction Inbound -LocalPort 3389 -Protocol TCP -RemoteAddress "10.1.0.0/16" -Action Allow
+New-NetFirewallRule -GPOSession $GpoSessionAdmins -DisplayName "Allow RDP Inbound -Direction Inbound -LocalPort 3389 -Protocol TCP -Action Allow
 
 # Allow SMB (TCP/445) internally, block externally
 New-NetFirewallRule -GPOSession $GpoSessionAdmins -DisplayName "Allow SMB Internal Inbound TCP" -Direction Inbound -LocalPort 445 -Protocol TCP -RemoteAddress "LocalSubnet" -Action Allow
