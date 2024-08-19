@@ -1,3 +1,10 @@
+# Specify the domain
+$Domain = 'umbrellacorp.local'
+
+# Specify the GPO names
+$GpoNameAllUsers = 'Windows Firewall Policy - All Users'
+$GpoNameAdmins = 'Windows Firewall Policy - Admins'
+
 # Check if the GPOs exist, and create them if they don't
 if (-not (Get-GPO -Name $GpoNameAllUsers -ErrorAction SilentlyContinue)) {
     New-GPO -Name $GpoNameAllUsers -Domain $Domain
