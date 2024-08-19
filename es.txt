@@ -1,0 +1,1 @@
+sqlcmd -S db01 -U public_db_reader -P 'threewordphrase1!' -Q "select * from openquery(db02, 'select * from _5G_enzyme_experimental.dbo.experimentalenzymes');" -W
