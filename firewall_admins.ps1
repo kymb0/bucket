@@ -43,6 +43,9 @@ New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block ICMPv4 I
 New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block ICMPv4 Outbound" -Direction Outbound -Protocol ICMPv4 -Action Block
 # Allow DNS (UDP/53) only to a specific server
 New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow DNS to Specific Server" -Direction Outbound -LocalPort 53 -Protocol UDP -RemoteAddress "192.168.66.1" -Action Allow
+# Block DNS (UDP/53) to all other servers
+New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block DNS to Other Servers" -Direction Outbound -LocalPort 53 -Protocol UDP -RemoteAddress "Any" -Action Block
+
 # Allow HTTP traffic on the 192.168.66.0/24 subnet
 New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow Internal HTTP on 192.168.66.0/24" -Direction Outbound -LocalPort 80 -Protocol TCP -RemoteAddress "192.168.66.0/24" -Action Allow -Profile Any
 
