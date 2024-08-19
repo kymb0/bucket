@@ -4,7 +4,7 @@ Import-Module GroupPolicy
 # Define GPO names and the Workstations OU
 $UserGPOName = "Firewall Rules for All Users"
 $AdminGPOName = "Firewall Rules for Admins"
-$WorkstationsOUPath = "OU=Workstations,DC=umbrellacorp,DC=local"
+$DomainName = "umbrellacorp.local"
 
 # Create or retrieve the User GPO
 $UserGPO = Get-GPO -Name $UserGPOName -ErrorAction SilentlyContinue
@@ -18,9 +18,13 @@ if (-not $AdminGPO) {
     $AdminGPO = New-GPO -Name $AdminGPOName -Comment "Allow specific firewall settings for admins"
 }
 
-# Link the GPOs to the Workstations OU
-New-GPLink -Name $UserGPOName -Target $WorkstationsOUPath
-New-GPLink -Name $AdminGPOName -Target $WorkstationsOUPath
+# Define paths to GPOs
+$UserGPOPath = "\\$DomainName\sysvol\$DomainName\Policies\{$($UserGPO.Id)}\Machine\Microsoft\Windows\Windows Firewall with Advanced Security"
+$AdminGPOPath = "\\$DomainName\sysvol\$DomainName\Policies\{$($AdminGPO.Id)}\Machine\Microsoft\Windows\Windows Firewall with Advanced Security"
+
+# Open GPO sessions
+$UserGPOsession = Open-NetGPO -PolicyStore $UserGPOPath
+$AdminGPOsession = Open-NetGPO -PolicyStore $AdminGPOPath
 
 # Define firewall rules as an array of custom objects for users (Blocking)
 $firewallRules = @(
@@ -42,55 +46,23 @@ $firewallRules = @(
     @{Name="Block Outbound RDP Traffic"; Protocol="TCP"; LocalPort="3389"; Direction="Outbound"; Action="Block"}
 )
 
-# Function to construct registry values for firewall rules
-function Construct-FirewallRegistryValue {
-    param (
-        [string]$Name,
-        [string]$Direction,
-        [string]$Action,
-        [string]$Profile,
-        [string]$Protocol,
-        [string]$LocalPort,
-        [string]$RemoteAddress
-    )
-    
-    # Build the registry value string
-    $registryValue = "v2.24|$Name|$Direction|$Action|"
-    
-    # Add profile if provided
-    if ($Profile) { 
-        $registryValue += "$Profile|" 
-    } else {
-        $registryValue += "|" 
-    }
-    
-    # Add protocol, local port, and remote address
-    $registryValue += "$Protocol|$LocalPort|$RemoteAddress|@FirewallAPI.dll,-28502"
-    
-    return $registryValue
+# Apply blocking rules to the User GPO
+foreach ($rule in $firewallRules) {
+    New-NetFirewallRule -DisplayName $rule.Name -Direction $rule.Direction -Action $rule.Action -Protocol $rule.Protocol -LocalPort $rule.LocalPort -RemoteAddress $rule.RemoteAddress -Profile $rule.Profile -PolicyStore $UserGPOsession
 }
 
-# Add rules to the User GPO (Blocking Rules)
+# Apply inverse (allowing) rules to the Admin GPO
 foreach ($rule in $firewallRules) {
-    $registryValue = Construct-FirewallRegistryValue -Name $rule.Name -Direction $rule.Direction -Action $rule.Action -Profile $rule.Profile -Protocol $rule.Protocol -LocalPort $rule.LocalPort -RemoteAddress $rule.RemoteAddress
-    Set-GPRegistryValue -Name $UserGPOName -Key "HKLM\Software\Policies\Microsoft\WindowsFirewall\FirewallRules" -ValueName $rule.Name -Type String -Value $registryValue
-}
-
-# Add inverse rules to the Admin GPO (Allowing Rules)
-foreach ($rule in $firewallRules) {
-    # Convert the block action to allow for Admin GPO
     $inverseAction = if ($rule.Action -eq "Block") { "Allow" } else { $rule.Action }
-    $registryValue = Construct-FirewallRegistryValue -Name $rule.Name -Direction $rule.Direction -Action $inverseAction -Profile $rule.Profile -Protocol $rule.Protocol -LocalPort $rule.LocalPort -RemoteAddress $rule.RemoteAddress
-    Set-GPRegistryValue -Name $AdminGPOName -Key "HKLM\Software\Policies\Microsoft\WindowsFirewall\FirewallRules" -ValueName $rule.Name -Type String -Value $registryValue
+    New-NetFirewallRule -DisplayName $rule.Name -Direction $rule.Direction -Action $inverseAction -Protocol $rule.Protocol -LocalPort $rule.LocalPort -RemoteAddress $rule.RemoteAddress -Profile $rule.Profile -PolicyStore $AdminGPOsession
 }
+
+# Save and close GPO sessions
+Save-NetGPO -PolicyStore $UserGPOsession
+Save-NetGPO -PolicyStore $AdminGPOsession
 
 # Apply Security Filtering to ensure the User GPO applies to all users and Admin GPO to admins only
-# Remove "Authenticated Users" from Admin GPO and add "Domain Admins" or relevant group
-
-# Remove Authenticated Users from Admin GPO
 Set-GPPermissions -Name $AdminGPOName -TargetName "Authenticated Users" -TargetType Group -PermissionLevel None
-
-# Add Domain Admins to Admin GPO
 Set-GPPermissions -Name $AdminGPOName -TargetName "Domain Admins" -TargetType Group -PermissionLevel GpoApply
 
 # Force update of GPOs (useful only for testing, as it's not typically done in production)
