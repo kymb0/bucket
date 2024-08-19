@@ -43,12 +43,18 @@ New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block ICMPv4 I
 New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block ICMPv4 Outbound" -Direction Outbound -Protocol ICMPv4 -Action Block
 # Allow DNS (UDP/53) only to a specific server
 New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow DNS to Specific Server" -Direction Outbound -LocalPort 53 -Protocol UDP -RemoteAddress "192.168.66.1" -Action Allow
-# Allow HTTP/HTTPS for domain profiles, block for private/public profiles
-New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow HTTP Domain Profile" -Direction Outbound -LocalPort 80 -Protocol TCP -Action Allow -Profile Domain
-New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block HTTP Private/Public Profile" -Direction Outbound -LocalPort 80 -Protocol TCP -Action Block -Profile Private,Public
+# Allow HTTP traffic on the 192.168.66.0/24 subnet
+New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow Internal HTTP on 192.168.66.0/24" -Direction Outbound -LocalPort 80 -Protocol TCP -RemoteAddress "192.168.66.0/24" -Action Allow -Profile Any
 
-New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow HTTPS Domain Profile" -Direction Outbound -LocalPort 443 -Protocol TCP -Action Allow -Profile Domain
-New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block HTTPS Private/Public Profile" -Direction Outbound -LocalPort 443 -Protocol TCP -Action Block -Profile Private,Public
+# Allow HTTPS traffic on the 192.168.66.0/24 subnet
+New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Allow Internal HTTPS on 192.168.66.0/24" -Direction Outbound -LocalPort 443 -Protocol TCP -RemoteAddress "192.168.66.0/24" -Action Allow -Profile Any
+
+# Block HTTP traffic to all other networks
+New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block External HTTP" -Direction Outbound -LocalPort 80 -Protocol TCP -RemoteAddress "Any" -Action Block -Profile Any
+
+# Block HTTPS traffic to all other networks
+New-NetFirewallRule -GPOSession $GpoSessionAllUsers -DisplayName "Block External HTTPS" -Direction Outbound -LocalPort 443 -Protocol TCP -RemoteAddress "Any" -Action Block -Profile Any
+
 # Allow TCP ports for Admins
 foreach ($Port in $BlockedPortsTCP) {
     New-NetFirewallRule -GPOSession $GpoSessionAdmins -DisplayName "Allow Inbound TCP Port $Port" -Direction Inbound -LocalPort $Port -Protocol TCP -Action Allow
