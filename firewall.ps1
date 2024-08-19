@@ -1,9 +1,18 @@
 # Specify the domain
 $Domain = 'umbrellacorp.local'
 
-# GPO names
+# Specify the GPO names
 $GpoNameAllUsers = 'Windows Firewall Policy - All Users'
 $GpoNameAdmins = 'Windows Firewall Policy - Admins'
+
+# Check if the GPOs exist, and create them if they don't
+if (-not (Get-GPO -Name $GpoNameAllUsers -ErrorAction SilentlyContinue)) {
+    New-GPO -Name $GpoNameAllUsers -Domain $Domain
+}
+
+if (-not (Get-GPO -Name $GpoNameAdmins -ErrorAction SilentlyContinue)) {
+    New-GPO -Name $GpoNameAdmins -Domain $Domain
+}
 
 # Combine the domain and GPO names to create the $PolicyStore variables
 $PolicyStoreAllUsers = "$Domain\$GpoNameAllUsers"
@@ -12,6 +21,7 @@ $PolicyStoreAdmins = "$Domain\$GpoNameAdmins"
 # Open GPO sessions
 $GpoSessionAllUsers = Open-NetGPO -PolicyStore $PolicyStoreAllUsers
 $GpoSessionAdmins = Open-NetGPO -PolicyStore $PolicyStoreAdmins
+
 # Block specific ports for all profiles
 $BlockedPorts = @(21, 22, 23, 69, 161, 2049, 3389)
 foreach ($Port in $BlockedPorts) {
